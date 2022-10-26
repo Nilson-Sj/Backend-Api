@@ -1,0 +1,116 @@
+{
+	"info": {
+		"_postman_id": "ebc48127-5e2c-4c78-970d-e39954f371b3",
+		"name": "Heróis_Backend_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24040984"
+	},
+	"item": [
+		{
+			"name": "Ler todos heróis",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{API_URL}}/herois",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"herois"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ler heróis pelo ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{API_URL}}/herois/7",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"herois",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar heróis",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"heroi\": \"Mulher Hulk\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/herois",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"herois"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar heróis pelo ID",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"heroi\": \"Heroi atualizado\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/herois/2",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"herois",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remover heróis pelo ID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{API_URL}}/herois/2",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"herois",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
