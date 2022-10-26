@@ -46,68 +46,83 @@ const herois = [
   "id": 6,
   "nome": "Arqueiro Verde"
 },
-]
+];
+
+  const getHeroisValidas = () => herois.filter(Boolean);
+
+  const getHeroiById = id => getHeroisValidas().find(hero => hero.id === id);
+
 // - [GET] /herois - Retorna a lista de heróis
 app.get('/herois', (req, res) => {
-    res.send(herois.filter(Boolean));
+  res.send(getHeroisValidas());
 });
 
 // - [GET] /herois/{id} - Retorna apenas um herói pelo ID
 app.get('/herois/:id', (req, res) => {
-  const id = req.params.id - 1;
+  const id = +req.params.id;
   
-  const heroi = herois[id];
+  const heroi = getHeroiById(id);
 
   if (!heroi) {
     res.send('Herói não encontrado!.');
     return;
-  }
+  };
   
   res.send(heroi);
 });
 
 // - [POST] /herois - Cria um novo herói
 app.post('/herois', (req, res) => {
-    const heroi = req.body;
+  const heroi = req.body;
 
-    if (!heroi || !heroi.nome) {
-      res.send('Herói Inválido!');
-      return;
-    };
+  if (!heroi || !heroi.nome) {
+    res.send('Herói Inválido!');
+    return;
+  };
 
-    heroi.id = herois.length + 1;
-    herois.push(heroi);
+  heroi.id = herois.length + 1;
+  herois.push(heroi);
 
-    res.send(heroi);
+  res.send(heroi);
 
 });
 
 // - [PUT] /herois/{id} - Atualiza um herói pelo ID
 app.put('/herois/:id', (req, res) => {
-    const id = req.params.id - 1;
-
-    const heroi = herois[id];
+  const id = +req.params.id;
+  
+  const heroi = getHeroiById(id);
     
-    const novoNome = req.body.nome;
+  const novoNome = req.body.nome;
 
     if (!novoNome) {
       res.send('Herói Inválido!.');
       
       return;
-    }
+    };
     
-    heroi.nome = novoNome;
+  heroi.nome = novoNome;
 
-    res.send(heroi);
+  res.send(heroi);
 });
 
 // - [DELETE] /herois/{id} - Remover o herói pelo ID
 app.delete('/herois/:id', (req, res) => {
-    const id = req.params.id - 1;
+  const id = +req.params.id;
+  
+  const heroi = getHeroiById(id);
 
-    delete herois[id];
+  if (!heroi) {
+    res.send('Herói não encontrado!.');
+    
+    return;
+  }
 
-    res.send('Herói removido com sucesso!.');
+  const index = herois.indexOf(heroi);
+  
+  delete herois[index];
+
+  res.send('Herói removido com sucesso!.');
 
 });
 
