@@ -22,13 +22,31 @@ app.get('/hello', (req, res) => {
 */
 
 const herois = [
-  "Superman",
-  "Batman",
-  "Mulher Maravilha",
-  "Flash",
-  "Homem Aranha",
-  "Arqueiro Verde"
-];
+{ 
+  "id": 1,
+  "nome": "Superman",
+},
+{
+  "id": 2,
+  "nome": "Batman",
+},
+{
+  "id": 3,
+  "nome": "Mulher Maravilha",
+},
+{
+  "id": 4,
+  "nome": "Flash",
+},
+{
+  "id": 5,
+  "nome": "Homem Aranha",
+},
+{
+  "id": 6,
+  "nome": "Arqueiro Verde"
+},
+]
 // - [GET] /herois - Retorna a lista de heróis
 app.get('/herois', (req, res) => {
     res.send(herois.filter(Boolean));
@@ -39,17 +57,28 @@ app.get('/herois/:id', (req, res) => {
   const id = req.params.id - 1;
   
   const heroi = herois[id];
+
+  if (!heroi) {
+    res.send('Herói não encontrado!.');
+    return;
+  }
   
   res.send(heroi);
 });
 
 // - [POST] /herois - Cria um novo herói
 app.post('/herois', (req, res) => {
-    const heroi = req.body.heroi;
+    const heroi = req.body;
 
+    if (!heroi || !heroi.nome) {
+      res.send('Herói Inválido!');
+      return;
+    };
+
+    heroi.id = herois.length + 1;
     herois.push(heroi);
 
-    res.send(`Novo Herói adicionado com sucesso!.'${heroi}'.`);
+    res.send(heroi);
 
 });
 
@@ -57,11 +86,19 @@ app.post('/herois', (req, res) => {
 app.put('/herois/:id', (req, res) => {
     const id = req.params.id - 1;
 
-    const heroi = req.body.heroi;
+    const heroi = herois[id];
+    
+    const novoNome = req.body.nome;
 
-    herois[id] = heroi;
+    if (!novoNome) {
+      res.send('Herói Inválido!.');
+      
+      return;
+    }
+    
+    heroi.nome = novoNome;
 
-    res.send(`Herói atualizado com sucesso:'${heroi}'.`);
+    res.send(heroi);
 });
 
 // - [DELETE] /herois/{id} - Remover o herói pelo ID
