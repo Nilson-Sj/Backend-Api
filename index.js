@@ -63,16 +63,23 @@ app.get('/herois/:id', async (req, res) => {
 });
 
 // - [POST] /herois - Cria um novo herói
-app.post('/herois', (req, res) => {
+app.post('/herois', async (req, res) => {
   const heroi = req.body;
 
-  if (!heroi || !heroi.nome) {
+  if (!heroi 
+    || !heroi.nome
+    || !heroi.poder) {
     res.send('Herói Inválido!');
     return;
-  };
+  }
 
-  heroi.id = herois.length + 1;
-  herois.push(heroi);
+const { insertedCount } = await herois.insertOne(heroi);
+
+  if (insertedCount !== 1){
+    res.send('Ocorreu um error ao criar o Herói!.');
+
+    return;
+  }
 
   res.send(heroi);
 
