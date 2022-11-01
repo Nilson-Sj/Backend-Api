@@ -1,5 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongodb = require('mongodb');
+
+(async () => {
+
+const connectionString = 'mongodb://localhost:27017/';
+
+console.info('Conectando ao banco de dados MongoDB...');
+
+const options = {
+    useUnifiedTopology: true
+};
+
+const client = await mongodb.MongoClient.connect(connectionString, options);
 
 const app = express();
 
@@ -21,45 +34,22 @@ app.get('/hello', (req, res) => {
 
 */
 
-const herois = [
-{ 
-  "id": 1,
-  "nome": "Superman",
-},
-{
-  "id": 2,
-  "nome": "Batman",
-},
-{
-  "id": 3,
-  "nome": "Mulher Maravilha",
-},
-{
-  "id": 4,
-  "nome": "Flash",
-},
-{
-  "id": 5,
-  "nome": "Homem Aranha",
-},
-{
-  "id": 6,
-  "nome": "Arqueiro Verde"
-},
-];
+const db = client.db('Herois_API');
 
-  const getHeroisValidas = () => herois.filter(Boolean);
+const herois = db.collection('Herois');
 
-  const getHeroiById = id => getHeroisValidas().find(hero => hero.id === id);
+const getHeroisValidas = () => herois.find({}).toArray();
+
+const getHeroiById = id => getHeroisValidas().find(hero => hero.id === id);
 
 // - [GET] /herois - Retorna a lista de heróis
-app.get('/herois', (req, res) => {
-  res.send(getHeroisValidas());
+app.get('/herois', async (req, res) => {
+  res.send(await getHeroisValidas());
 });
 
 // - [GET] /herois/{id} - Retorna apenas um herói pelo ID
 app.get('/herois/:id', (req, res) => {
-  const id = +req.params.id;
+  const id = req.params.id;
   
   const heroi = getHeroiById(id);
 
@@ -129,3 +119,5 @@ app.delete('/herois/:id', (req, res) => {
 app.listen(port, () => {
   console.info(`App rodando em http://localhost:${port}`);
 });
+
+})();
