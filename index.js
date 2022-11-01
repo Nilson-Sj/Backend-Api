@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongodb = require('mongodb');
+const ObjectId = mongodb.ObjectId;
 
 (async () => {
 
@@ -40,7 +41,7 @@ const herois = db.collection('Herois');
 
 const getHeroisValidas = () => herois.find({}).toArray();
 
-const getHeroiById = id => getHeroisValidas().find(hero => hero.id === id);
+const getHeroiById = async id => herois.findOne({ _id: ObjectId(id) });
 
 // - [GET] /herois - Retorna a lista de heróis
 app.get('/herois', async (req, res) => {
@@ -48,10 +49,10 @@ app.get('/herois', async (req, res) => {
 });
 
 // - [GET] /herois/{id} - Retorna apenas um herói pelo ID
-app.get('/herois/:id', (req, res) => {
+app.get('/herois/:id', async (req, res) => {
   const id = req.params.id;
   
-  const heroi = getHeroiById(id);
+  const heroi = await getHeroiById(id);
 
   if (!heroi) {
     res.send('Herói não encontrado!.');
