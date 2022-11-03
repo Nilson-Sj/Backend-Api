@@ -86,22 +86,43 @@ const {acknowledged} = await herois.insertOne(heroi);
 });
 
 // - [PUT] /herois/{id} - Atualiza um herói pelo ID
-app.put('/herois/:id', (req, res) => {
-  const id = +req.params.id;
+app.put('/herois/:id', async (req, res) => {
+  const id = req.params.id;
   
-  const heroi = getHeroiById(id);
-    
-  const novoNome = req.body.nome;
+  const novoHeroi = req.body;
 
-    if (!novoNome) {
+    if (!novoHeroi
+      || !novoHeroi.nome
+      || !novoHeroi.poder) {
       res.send('Herói Inválido!.');
-      
-      return;
-    };
     
-  heroi.nome = novoNome;
+    return;
+  }
+  
+  const quantidade_herois = await herois.countDocuments({ _id: ObjectId(id) });
+    
+    if (quantidade_herois !== 1) {
+      res.send('Herói Não Encontrado!.')
 
-  res.send(heroi);
+    return;
+    }
+  
+  const { modifiedCount } = await herois.updateOne(
+      {
+        _id: ObjectId(id)
+      },
+      {
+        $set: novoHeroi
+      }
+    );
+
+    if ( modifiedCount !== 1) {
+      res.send('Ocorreu um erro ao atualizar o heroi!.');
+
+      return;
+    }
+
+  res.send(novoHeroi);
 });
 
 // - [DELETE] /herois/{id} - Remover o herói pelo ID
