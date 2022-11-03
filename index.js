@@ -102,7 +102,7 @@ app.put('/herois/:id', async (req, res) => {
   const quantidade_herois = await herois.countDocuments({ _id: ObjectId(id) });
     
     if (quantidade_herois !== 1) {
-      res.send('Herói Não Encontrado!.')
+      res.send('Herói Não Encontrado!.');
 
     return;
     }
@@ -122,26 +122,30 @@ app.put('/herois/:id', async (req, res) => {
       return;
     }
 
-  res.send(novoHeroi);
+  res.send(await getHeroiById(id));
 });
 
 // - [DELETE] /herois/{id} - Remover o herói pelo ID
-app.delete('/herois/:id', (req, res) => {
-  const id = +req.params.id;
-  
-  const heroi = getHeroiById(id);
+app.delete('/herois/:id', async (req, res) => {
+  const id = req.params.id;
 
-  if (!heroi) {
-    res.send('Herói não encontrado!.');
+  const quantidade_herois = await herois.countDocuments({ _id: ObjectId(id) });
     
+    if (quantidade_herois !== 1) {
+      res.send('Herói não encontrado!.');
+
     return;
-  }
+    }
 
-  const index = herois.indexOf(heroi);
-  
-  delete herois[index];
+  const { deletedCount } = await herois.deleteOne({ _id: ObjectId(id) });
 
-  res.send('Herói removido com sucesso!.');
+    if ( deletedCount !== 1) {
+      res.send('Ocorreu um erro ao remover o herói!.');
+
+      return;
+    }
+
+      res.send('Herói removido com sucesso!.');
 
 });
 
