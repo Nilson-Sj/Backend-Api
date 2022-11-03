@@ -73,9 +73,9 @@ app.post('/herois', async (req, res) => {
     return;
   }
 
-const { insertedCount } = await herois.insertOne(heroi);
-
-  if (insertedCount !== 1){
+const {acknowledged} = await herois.insertOne(heroi);
+  
+  if (acknowledged !== true){
     res.send('Ocorreu um error ao criar o Herói!.');
 
     return;
