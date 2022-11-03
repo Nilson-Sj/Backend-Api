@@ -5,7 +5,9 @@ const ObjectId = mongodb.ObjectId;
 
 (async () => {
 
-const connectionString = 'mongodb://localhost:27017/';
+//const connectionString = 'mongodb://localhost:27017/'; RK1qEgg0VzdpGupX
+
+const connectionString = 'mongodb+srv://admin:RK1qEgg0VzdpGupX@cluster0.0seejtp.mongodb.net/api-herois-marvel?retryWrites=true&w=majority';
 
 console.info('Conectando ao banco de dados MongoDB...');
 
