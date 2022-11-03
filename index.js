@@ -1,9 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongodb = require('mongodb');
+const ObjectId = mongodb.ObjectId;
+
+(async () => {
+
+//const connectionString = 'mongodb://localhost:27017/'; RK1qEgg0VzdpGupX
+
+const connectionString = 'mongodb+srv://admin:RK1qEgg0VzdpGupX@cluster0.0seejtp.mongodb.net/api-herois-marvel?retryWrites=true&w=majority';
+
+console.info('Conectando ao banco de dados MongoDB...');
+
+const options = {
+    useUnifiedTopology: true
+};
+
+const client = await mongodb.MongoClient.connect(connectionString, options);
 
 const app = express();
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -21,47 +37,24 @@ app.get('/hello', (req, res) => {
 
 */
 
-const herois = [
-{ 
-  "id": 1,
-  "nome": "Superman",
-},
-{
-  "id": 2,
-  "nome": "Batman",
-},
-{
-  "id": 3,
-  "nome": "Mulher Maravilha",
-},
-{
-  "id": 4,
-  "nome": "Flash",
-},
-{
-  "id": 5,
-  "nome": "Homem Aranha",
-},
-{
-  "id": 6,
-  "nome": "Arqueiro Verde"
-},
-];
+const db = client.db('Herois_API');
 
-  const getHeroisValidas = () => herois.filter(Boolean);
+const herois = db.collection('Herois');
 
-  const getHeroiById = id => getHeroisValidas().find(hero => hero.id === id);
+const getHeroisValidas = () => herois.find({}).toArray();
+
+const getHeroiById = async id => herois.findOne({ _id: ObjectId(id) });
 
 // - [GET] /herois - Retorna a lista de heróis
-app.get('/herois', (req, res) => {
-  res.send(getHeroisValidas());
+app.get('/herois', async (req, res) => {
+  res.send(await getHeroisValidas());
 });
 
 // - [GET] /herois/{id} - Retorna apenas um herói pelo ID
-app.get('/herois/:id', (req, res) => {
-  const id = +req.params.id;
+app.get('/herois/:id', async (req, res) => {
+  const id = req.params.id;
   
-  const heroi = getHeroiById(id);
+  const heroi = await getHeroiById(id);
 
   if (!heroi) {
     res.send('Herói não encontrado!.');
@@ -72,60 +65,94 @@ app.get('/herois/:id', (req, res) => {
 });
 
 // - [POST] /herois - Cria um novo herói
-app.post('/herois', (req, res) => {
+app.post('/herois', async (req, res) => {
   const heroi = req.body;
 
-  if (!heroi || !heroi.nome) {
+  if (!heroi 
+    || !heroi.nome
+    || !heroi.poder) {
     res.send('Herói Inválido!');
     return;
-  };
+  }
 
-  heroi.id = herois.length + 1;
-  herois.push(heroi);
+const {acknowledged} = await herois.insertOne(heroi);
+  
+  if (acknowledged !== true){
+    res.send('Ocorreu um error ao criar o Herói!.');
+
+    return;
+  }
 
   res.send(heroi);
 
 });
 
 // - [PUT] /herois/{id} - Atualiza um herói pelo ID
-app.put('/herois/:id', (req, res) => {
-  const id = +req.params.id;
+app.put('/herois/:id', async (req, res) => {
+  const id = req.params.id;
   
-  const heroi = getHeroiById(id);
-    
-  const novoNome = req.body.nome;
+  const novoHeroi = req.body;
 
-    if (!novoNome) {
+    if (!novoHeroi
+      || !novoHeroi.nome
+      || !novoHeroi.poder) {
       res.send('Herói Inválido!.');
-      
-      return;
-    };
-    
-  heroi.nome = novoNome;
-
-  res.send(heroi);
-});
-
-// - [DELETE] /herois/{id} - Remover o herói pelo ID
-app.delete('/herois/:id', (req, res) => {
-  const id = +req.params.id;
-  
-  const heroi = getHeroiById(id);
-
-  if (!heroi) {
-    res.send('Herói não encontrado!.');
     
     return;
   }
-
-  const index = herois.indexOf(heroi);
   
-  delete herois[index];
+  const quantidade_herois = await herois.countDocuments({ _id: ObjectId(id) });
+    
+    if (quantidade_herois !== 1) {
+      res.send('Herói Não Encontrado!.');
 
-  res.send('Herói removido com sucesso!.');
+    return;
+    }
+  
+  const { modifiedCount } = await herois.updateOne(
+      {
+        _id: ObjectId(id)
+      },
+      {
+        $set: novoHeroi
+      }
+    );
+
+    if ( modifiedCount !== 1) {
+      res.send('Ocorreu um erro ao atualizar o heroi!.');
+
+      return;
+    }
+
+  res.send(await getHeroiById(id));
+});
+
+// - [DELETE] /herois/{id} - Remover o herói pelo ID
+app.delete('/herois/:id', async (req, res) => {
+  const id = req.params.id;
+
+  const quantidade_herois = await herois.countDocuments({ _id: ObjectId(id) });
+    
+    if (quantidade_herois !== 1) {
+      res.send('Herói não encontrado!.');
+
+    return;
+    }
+
+  const { deletedCount } = await herois.deleteOne({ _id: ObjectId(id) });
+
+    if ( deletedCount !== 1) {
+      res.send('Ocorreu um erro ao remover o herói!.');
+
+      return;
+    }
+
+      res.send('Herói removido com sucesso!.');
 
 });
 
 app.listen(port, () => {
   console.info(`App rodando em http://localhost:${port}`);
 });
+
+})();
